@@ -48,23 +48,24 @@ RUN apt-get update \
 	&& apt-get install -y curl git jq sudo \
 	&& apt-get update
 
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (stretch|bionic) ]]; then \
+RUN if [[ "${ARCH}" == 'amd64' ]]; then \
 			apt-get install -y build-essential ccache libssl-dev re2c libstdc++-*-dev \
 			libarchive-dev libcurl4-openssl-dev libuv1-dev procps zlib1g-dev libexpat1-dev \
-			openssl  libicu6* libicu-dev libjsoncpp-dev libncurses5-dev librhash-dev; \
+			openssl libicu6* libicu-dev libjsoncpp-dev libncurses5-dev librhash-dev; \
 		fi
 
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
-        apt-get install -y cpp-8 gcc-8 g++-8; \ 
-    fi
-
-RUN if [[ "${ARCH}" != 'amd64' && ! "${CODENAME}" =~ (stretch|bionic) ]]; then \
+RUN if [[ "${ARCH}" != 'amd64' ]]; then \
 			apt-get install -y crossbuild-essential-${ARCH} ccache:${ARCH}  \
 			libssl-dev:${ARCH} re2c:${ARCH} libstdc++-*-dev:${ARCH} libarchive-dev:${ARCH} \
 			libcurl4-openssl-dev:${ARCH} libuv1-dev:${ARCH} procps:${ARCH} zlib1g-dev:${ARCH} \
 			libexpat1-dev:${ARCH} openssl:${ARCH}  libicu6*:${ARCH} libicu-dev:${ARCH} \
 			libjsoncpp-dev:${ARCH} libncurses5-dev:${ARCH} librhash-dev:${ARCH}; \
 		fi
+
+RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
+        apt-get install -y cpp-8 gcc-8 g++-8; \ 
+    fi
+
 
 RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
         apt-get install -y cpp-8-${CHOST} g++-8-${CHOST} gcc-8-${CHOST}; \
@@ -74,7 +75,11 @@ RUN if [[ "${CODENAME}" == 'buster' ]]; then \
         apt-get install -y libdouble-conversion1:${ARCH} libdouble-conversion-dev:${ARCH}; \
 	fi
 
-RUN if [[ ! "${CODENAME}" =~ (stretch|buster|bionic) ]]; then \
+RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (bullseye|focal|jammy) ]]; then \
+        apt-get install -y libdouble-conversion3 libdouble-conversion-dev; \
+	fi
+
+RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (bullseye|focal|jammy) ]]; then \
         apt-get install -y libdouble-conversion3:${ARCH} libdouble-conversion-dev:${ARCH}; \
 	fi
 
