@@ -29,62 +29,50 @@ ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 # COPY build.sh /opt/build.sh
 # RUN /opt/build.sh
 
-RUN if [[ "${ID}" == 'ubuntu' ]]; then \
+RUN if [[ "${ID}" == 'ubuntu' ]];then \
 		printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME} main restricted universe multiverse" > /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME}-backports restricted universe multiverse" >> /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=amd64] http://security.ubuntu.com/ubuntu/ ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list; \
 	fi
 
-RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]]; then \
+RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then \
 		printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME} main restricted universe multiverse" >> /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list; \
 	fi
 
+RUN if [[ "${ARCH}" != 'amd64' ]];then apt_arch=":${ARCH}"; fi
+
+RUN if [[ "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
+
 RUN apt-get update \
-	&& dpkg --add-architecture ${ARCH} \
 	&& apt-get upgrade -y \
-	&& apt-get install -y curl git jq sudo \
-	&& apt-get update
+	&& apt-get install -y curl git jq sudo
 
-RUN if [[ "${ARCH}" == 'amd64' ]]; then \
-			apt-get install -y build-essential ccache libssl-dev re2c libstdc++-*-dev libgeoip-dev \
-			libarchive-dev libcurl4-openssl-dev libuv1-dev procps zlib1g-dev libexpat1-dev \
-			openssl libicu[0-9]+$:${ARCH} libicu-dev libjsoncpp-dev libncurses5-dev librhash-dev; \
-		fi
+RUN if [[ "${ARCH}" == 'amd64' ]];then apt-get install -y build-essential; fi
 
-RUN if [[ "${ARCH}" != 'amd64' ]]; then \
-			apt-get install -y crossbuild-essential-${ARCH} ccache:${ARCH} libgeoip-dev:${ARCH}  \
-			libssl-dev:${ARCH} re2c:${ARCH} libstdc++-*-dev:${ARCH} libarchive-dev:${ARCH} \
-			libcurl4-openssl-dev:${ARCH} libuv1-dev:${ARCH} procps:${ARCH} zlib1g-dev:${ARCH} \
-			libexpat1-dev:${ARCH} openssl:${ARCH} libicu[0-9]+$:${ARCH} libicu-dev:${ARCH} \
-			libjsoncpp-dev:${ARCH} libncurses5-dev:${ARCH} librhash-dev:${ARCH}; \
-		fi
+RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH}; fi
 
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
+RUN apt-get install -y \
+	ccache${apt_arch} libgeoip-dev${apt_arch} \
+	libssl-dev${apt_arch} re2c${apt_arch} libstdc++-*-dev${apt_arch} libarchive-dev${apt_arch} \
+	libcurl4-openssl-dev${apt_arch} libuv1-dev${apt_arch} procps${apt_arch} zlib1g-dev${apt_arch} \
+	libexpat1-dev${apt_arch} openssl${apt_arch} libicu[0-9][^a-z]${apt_arch} libicu-dev${apt_arch} \
+	libdouble-conversion[0-9]${apt_arch} libdouble-conversion-dev${apt_arch} \
+	libjsoncpp-dev${apt_arch} libncurses5-dev${apt_arch} librhash-dev${apt_arch}
+
+RUN if [[ "${CODENAME}" =~ (bullseye|jammy) ]];then \
+        apt-get install -y libmd4c-html0${apt_arch} libmd4c-html0-dev${apt_arch}; \
+	fi
+
+RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]];then \
         apt-get install -y cpp-8 gcc-8 g++-8; \ 
     fi
 
-RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
+RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" == 'bionic' ]];then \
         apt-get install -y cpp-8-${CHOST} g++-8-${CHOST} gcc-8-${CHOST}; \
     fi
-
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (buster|bullseye|focal|jammy) ]]; then \
-        apt-get install -y libdouble-conversion[0-9]$ libdouble-conversion-dev; \
-	fi
-
-RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (buster|bullseye|focal|jammy) ]]; then \
-        apt-get install -y libdouble-conversion[0-9]$:${ARCH} libdouble-conversion-dev:${ARCH}; \
-	fi
-
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (bullseye|jammy) ]]; then \
-        apt-get install -y libmd4c-html0 libmd4c-html0-dev; \
-	fi
-
-RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (bullseye|jammy) ]]; then \
-        apt-get install -y libmd4c-html0:${ARCH} libmd4c-html0-dev:${ARCH}; \
-	fi
 
 RUN useradd -ms /bin/bash -u 1000 username \
 	&& useradd -ms /bin/bash -u 1001 github \
