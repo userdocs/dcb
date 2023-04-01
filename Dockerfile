@@ -43,7 +43,7 @@ RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then \
 	fi
 
 RUN if [[ "${ARCH}" != 'amd64' ]];then APT_ARCH=":${ARCH}"; fi
-ENV APT_ARCH=${APT_ARCH:-}
+ARG APT_ARCH=${APT_ARCH:-}
 
 RUN if [[ "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
 
