@@ -64,6 +64,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Apt arch
+        run: if [[ ${{ matrix.arch }} != amd64 ]];then echo "apt_arch=:${{ matrix.arch }}" >> $GITHUB_ENV; fi
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -90,6 +93,7 @@ jobs:
             ID=${{ matrix.os_id }}
             CODENAME=${{ matrix.os_version_id }}
             ARCH=${{ matrix.arch }}
+            APT_ARCH=${{ env.apt_arch }}
             CHOST=${{ matrix.CHOST }}
             EXT=${{ matrix.EXT }}
             EXTAR=${{ matrix.EXTAR }}
