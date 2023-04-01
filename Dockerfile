@@ -8,6 +8,7 @@ SHELL ["/bin/bash", "-c"]
 ARG ID
 ARG CODENAME
 ARG ARCH
+ARG APT_ARCH
 ARG CHOST
 ARG EXT
 ARG EXTAR
@@ -41,9 +42,6 @@ RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then \
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list; \
 	fi
-
-RUN if [[ "${ARCH}" != 'amd64' ]];then APT_ARCH=":${ARCH}"; fi
-ARG APT_ARCH="${APT_ARCH:-}"
 
 RUN if [[ "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
 
