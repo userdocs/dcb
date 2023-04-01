@@ -28,7 +28,7 @@ jobs:
 
           printf '%b\n' "# gh cli workflow reruns" >> $GITHUB_STEP_SUMMARY
           printf '\n%b\n' ":octocat: Here is a summary of inputs from the failed workflow" >> $GITHUB_STEP_SUMMARY
-          printf '\n%b\n' "🟥 Failures at:\n\n\`\`\`bash\n${failures}\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+          printf '\n%b\n' "🟥 Failures at:\n\n\`\`\`log\n${failures}\n\`\`\`" >> $GITHUB_STEP_SUMMARY
           printf '\n%b\n' "🟦 Attempt: ${{ inputs.attempts }} - Rerun failed jobs in ${{ inputs.run_id }} :hammer:" >> $GITHUB_STEP_SUMMARY
 
           if gh run watch ${{ inputs.run_id }} --exit-status; then
