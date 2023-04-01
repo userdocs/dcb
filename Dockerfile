@@ -42,7 +42,8 @@ RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then \
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list; \
 	fi
 
-RUN if [[ "${ARCH}" != 'amd64' ]];then apt_arch=":${ARCH}"; fi
+RUN if [[ "${ARCH}" != 'amd64' ]];then APT_ARCH=":${ARCH}"; fi
+ENV APT_ARCH=${APT_ARCH:-}
 
 RUN if [[ "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
 
@@ -55,15 +56,15 @@ RUN if [[ "${ARCH}" == 'amd64' ]];then apt-get install -y build-essential; fi
 RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH}; fi
 
 RUN apt-get install -y \
-	ccache${apt_arch} libgeoip-dev${apt_arch} \
-	libssl-dev${apt_arch} re2c${apt_arch} libstdc++-*-dev${apt_arch} libarchive-dev${apt_arch} \
-	libcurl4-openssl-dev${apt_arch} libuv1-dev${apt_arch} procps${apt_arch} zlib1g-dev${apt_arch} \
-	libexpat1-dev${apt_arch} openssl${apt_arch} libicu[0-9][^a-z]${apt_arch} libicu-dev${apt_arch} \
-	libdouble-conversion[0-9]${apt_arch} libdouble-conversion-dev${apt_arch} \
-	libjsoncpp-dev${apt_arch} libncurses5-dev${apt_arch} librhash-dev${apt_arch}
+	ccache${APT_ARCH} libgeoip-dev${APT_ARCH} \
+	libssl-dev${APT_ARCH} re2c${APT_ARCH} libstdc++-*-dev${APT_ARCH} libarchive-dev${APT_ARCH} \
+	libcurl4-openssl-dev${APT_ARCH} libuv1-dev${APT_ARCH} procps${APT_ARCH} zlib1g-dev${APT_ARCH} \
+	libexpat1-dev${APT_ARCH} openssl${APT_ARCH} libicu[0-9][^a-z]${APT_ARCH} libicu-dev${APT_ARCH} \
+	libdouble-conversion[0-9]${APT_ARCH} libdouble-conversion-dev${APT_ARCH} \
+	libjsoncpp-dev${APT_ARCH} libncurses5-dev${APT_ARCH} librhash-dev${APT_ARCH}
 
 RUN if [[ "${CODENAME}" =~ (bullseye|jammy) ]];then \
-        apt-get install -y libmd4c-html0${apt_arch} libmd4c-html0-dev${apt_arch}; \
+        apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
 	fi
 
 RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]];then \
