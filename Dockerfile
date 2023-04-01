@@ -49,16 +49,16 @@ RUN apt-get update \
 	&& apt-get update
 
 RUN if [[ "${ARCH}" == 'amd64' ]]; then \
-			apt-get install -y build-essential ccache libssl-dev re2c libstdc++-*-dev \
+			apt-get install -y build-essential ccache libssl-dev re2c libstdc++-*-dev libgeoip-dev \
 			libarchive-dev libcurl4-openssl-dev libuv1-dev procps zlib1g-dev libexpat1-dev \
-			openssl libicu6* libicu-dev libjsoncpp-dev libncurses5-dev librhash-dev; \
+			openssl libicu[0-9]+$:${ARCH} libicu-dev libjsoncpp-dev libncurses5-dev librhash-dev; \
 		fi
 
 RUN if [[ "${ARCH}" != 'amd64' ]]; then \
-			apt-get install -y crossbuild-essential-${ARCH} ccache:${ARCH}  \
+			apt-get install -y crossbuild-essential-${ARCH} ccache:${ARCH} libgeoip-dev:${ARCH}  \
 			libssl-dev:${ARCH} re2c:${ARCH} libstdc++-*-dev:${ARCH} libarchive-dev:${ARCH} \
 			libcurl4-openssl-dev:${ARCH} libuv1-dev:${ARCH} procps:${ARCH} zlib1g-dev:${ARCH} \
-			libexpat1-dev:${ARCH} openssl:${ARCH}  libicu6*:${ARCH} libicu-dev:${ARCH} \
+			libexpat1-dev:${ARCH} openssl:${ARCH} libicu[0-9]+$:${ARCH} libicu-dev:${ARCH} \
 			libjsoncpp-dev:${ARCH} libncurses5-dev:${ARCH} librhash-dev:${ARCH}; \
 		fi
 
@@ -66,21 +66,24 @@ RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
         apt-get install -y cpp-8 gcc-8 g++-8; \ 
     fi
 
-
 RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
         apt-get install -y cpp-8-${CHOST} g++-8-${CHOST} gcc-8-${CHOST}; \
     fi
 
-RUN if [[ "${CODENAME}" == 'buster' ]]; then \
-        apt-get install -y libdouble-conversion1:${ARCH} libdouble-conversion-dev:${ARCH}; \
+RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (buster|bullseye|focal|jammy) ]]; then \
+        apt-get install -y libdouble-conversion[0-9]$ libdouble-conversion-dev; \
 	fi
 
-RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (bullseye|focal|jammy) ]]; then \
-        apt-get install -y libdouble-conversion3 libdouble-conversion-dev; \
+RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (buster|bullseye|focal|jammy) ]]; then \
+        apt-get install -y libdouble-conversion[0-9]$:${ARCH} libdouble-conversion-dev:${ARCH}; \
 	fi
 
-RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (bullseye|focal|jammy) ]]; then \
-        apt-get install -y libdouble-conversion3:${ARCH} libdouble-conversion-dev:${ARCH}; \
+RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" =~ (bullseye|jammy) ]]; then \
+        apt-get install -y libmd4c-html0 libmd4c-html0-dev; \
+	fi
+
+RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" =~ (bullseye|jammy) ]]; then \
+        apt-get install -y libmd4c-html0:${ARCH} libmd4c-html0-dev:${ARCH}; \
 	fi
 
 RUN useradd -ms /bin/bash -u 1000 username \
