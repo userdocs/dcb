@@ -58,7 +58,7 @@ RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]]; then \
         apt-get install -y cpp-8 gcc-8 g++-8; \ 
     fi
 
-RUN if [[ ! "${CODENAME}" =~ (stretch|bionic) ]]; then \
+RUN if [[ "${ARCH}" != 'amd64' ]]; then \
 			apt-get install -y crossbuild-essential-${ARCH} ccache:${ARCH}  \
 			libssl-dev:${ARCH} re2c:${ARCH} libstdc++-*-dev:${ARCH} libarchive-dev:${ARCH} \
 			libcurl4-openssl-dev:${ARCH} libuv1-dev:${ARCH} procps:${ARCH} zlib1g-dev:${ARCH} \
