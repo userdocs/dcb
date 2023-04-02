@@ -30,6 +30,10 @@ ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 # COPY build.sh /opt/build.sh
 # RUN /opt/build.sh
 
+RUN if [[ "${ID}" == 'buster' && "${ARCH}" == 'armel' ]];then \
+		printf '%s\n' "deb [arch=${ARCH}] http://deb.debian.org/debian buster-proposed-updates main" > /etc/apt/sources.list; \
+	fi
+
 RUN if [[ "${ID}" == 'ubuntu' ]];then \
 		printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME} main restricted universe multiverse" > /etc/apt/sources.list \
 		&& printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME}-updates main restricted universe multiverse" >> /etc/apt/sources.list \
