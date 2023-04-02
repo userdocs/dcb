@@ -36,6 +36,8 @@ jobs:
         include:
           - arch: amd64
             CHOST: "x86_64-linux-gnu"
+          - arch: armel
+            CHOST: "arm-linux-gnueabi"
           - arch: armhf
             CHOST: "arm-linux-gnueabihf"
           - arch: arm64
@@ -56,7 +58,9 @@ jobs:
           - os_id: ubuntu
             os_version_id: buster
           - os_id: ubuntu
-            os_version_id: bullseye
+            os_version_id: bullseye#
+          - os_id: ubuntu
+            arch: armel
 
     name: dcb ${{ matrix.os_id }}:${{ matrix.os_version_id }} ${{ matrix.arch }}
 
