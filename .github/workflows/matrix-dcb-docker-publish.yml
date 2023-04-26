@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os_id: [debian, ubuntu]
-        os_version_id: [stretch, buster, bullseye, bionic, focal, jammy]
+        os_version_id: [buster, bullseye, bionic, focal, jammy]
         arch: [amd64, armel, armhf, arm64]
         include:
           - arch: amd64
@@ -54,14 +54,10 @@ jobs:
           - os_id: debian
             os_version_id: jammy
           - os_id: ubuntu
-            os_version_id: stretch
-          - os_id: ubuntu
             os_version_id: buster
           - os_id: ubuntu
             os_version_id: bullseye
           - os_id: ubuntu
-            arch: armel
-          - os_version_id: stretch
             arch: armel
           - os_version_id: buster
             arch: armel
