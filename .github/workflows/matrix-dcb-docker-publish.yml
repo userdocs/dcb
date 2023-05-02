@@ -1,6 +1,8 @@
 name: dcb docker build and release
 
 on:
+  schedule:
+    - cron: "0 */6 * * *"
   workflow_dispatch:
     inputs:
       skip_rerun:
@@ -10,12 +12,10 @@ on:
       retries:
         description: 'Number of rerun retries'
         required: true
-        default: '5'
+        default: '3'
         type: choice
         options: [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
-  schedule:
-    - cron: "0 */6 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -114,4 +114,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Trigger rerun workflow on job failures
-        run: gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${{ inputs.retries }}
+        run: |
+          inputs_value="${{ inputs.retries }}"
+          gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_value:-3}
