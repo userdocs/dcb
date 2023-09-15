@@ -30,8 +30,8 @@ ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 # COPY build.sh /opt/build.sh
 # RUN /opt/build.sh
 
-RUN if [[ "${ID}" == 'buster' && "${ARCH}" == 'armel' ]];then \
-		printf '%s\n' "deb [arch=${ARCH}] http://deb.debian.org/debian buster-proposed-updates main" > /etc/apt/sources.list; \
+RUN if [[ "${ID}" =~ ^(buster|bullseye)$ && "${ARCH}" == 'armel' ]];then \
+		printf '%s\n' "deb [arch=${ARCH}] http://deb.debian.org/debian ${ID}-proposed-updates main" > /etc/apt/sources.list; \
 	fi
 
 RUN if [[ "${ID}" == 'ubuntu' ]];then \
@@ -70,7 +70,7 @@ RUN if [[ "${CODENAME}" =~ (bullseye|jammy) ]];then \
 	fi
 
 RUN if [[ "${ARCH}" == 'amd64' && "${CODENAME}" == 'bionic' ]];then \
-        apt-get install -y cpp-8 gcc-8 g++-8; \ 
+        apt-get install -y cpp-8 gcc-8 g++-8; \
     fi
 
 RUN if [[ "${ARCH}" != 'amd64' && "${CODENAME}" == 'bionic' ]];then \
