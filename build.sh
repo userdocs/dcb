@@ -1,8 +1,9 @@
 #!/bin/bash
 
-if [[ "${ID}" =~ ^(buster|bullseye)$ && "${ARCH}" == 'armel' ]]; then
-	printf '%s\n' "deb [arch=${ARCH}] http://deb.debian.org/debian ${ID}-proposed-updates main" > /etc/apt/sources.list
-fi
+# ID="debian"
+# CODENAME="bookworm"
+# ARCH=""
+# APT_ARCH=":${ARCH}"
 
 if [[ "${ID}" == 'ubuntu' ]]; then
 	printf '%s\n' "deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ ${CODENAME} main restricted universe multiverse" > /etc/apt/sources.list \
