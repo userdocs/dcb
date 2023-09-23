@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Apt arch
         run: if [[ ${{ matrix.arch }} != amd64 ]];then echo "apt_arch=:${{ matrix.arch }}" >> $GITHUB_ENV; fi
@@ -114,7 +114,7 @@ jobs:
     env:
       GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Trigger rerun workflow on job failures
         run: |
           inputs_value="${{ inputs.retries }}"
