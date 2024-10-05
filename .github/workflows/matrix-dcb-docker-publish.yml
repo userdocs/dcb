@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os_id: [debian, ubuntu]
-        os_version_id: [bullseye, bookworm, focal, jammy, mantic, noble]
+        os_version_id: [bullseye, bookworm, focal, jammy, noble]
         arch: [amd64, armhf, arm64]
         include:
           - arch: amd64
@@ -46,8 +46,6 @@ jobs:
             os_version_id: focal
           - os_id: debian
             os_version_id: jammy
-          - os_id: debian
-            os_version_id: mantic
           - os_id: debian
             os_version_id: noble
           - os_id: ubuntu
