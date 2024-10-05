@@ -18,13 +18,15 @@ if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]]; then
 		&& printf '%s\n' "deb [arch=${ARCH}] http://ports.ubuntu.com/ubuntu-ports ${CODENAME}-security main restricted universe multiverse" >> /etc/apt/sources.list
 fi
 
-if [[ "${ARCH}" != 'amd64' ]]; then dpkg --add-architecture ${ARCH}; fi
+if [[ "${ID}" == 'debian' && "${ARCH}" != 'amd64' ]]; then dpkg --add-architecture ${ARCH}; fi
 
 apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get install -y curl git jq sudo
 
 if [[ "${ARCH}" == 'amd64' ]]; then apt-get install -y build-essential; fi
+
+if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]]; then dpkg --add-architecture ${ARCH}; fi
 
 if [[ "${ARCH}" != 'amd64' ]]; then apt-get install -y crossbuild-essential-${ARCH}; fi
 
