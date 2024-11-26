@@ -15,16 +15,26 @@ on:
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
+  schedule:
+    - cron: "0 */24 * * *"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  id-token: write
+  packages: write
+  contents: write
+  attestations: write
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  GH_TOKEN: "${{ github.TOKEN }}"
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -64,23 +74,24 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
           push: true
           no-cache: true
-          tags: ghcr.io/${{ github.repository }}:${{ matrix.os_id }}-${{ matrix.os_version_id }}-${{ matrix.arch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.os_id }}-${{ matrix.os_version_id }}-${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             ID=${{ matrix.os_id }}
@@ -88,6 +99,14 @@ jobs:
             ARCH=${{ matrix.arch }}
             APT_ARCH=${{ env.apt_arch }}
             CHOST=${{ matrix.CHOST }}
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        id: attest
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
 
   rerun-on-failure:
     if: failure() && inputs.skip_rerun == '0'
