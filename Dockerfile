@@ -62,8 +62,18 @@ RUN if [[ ! "${CODENAME}" =~ focal ]];then \
 	fi
 
 RUN useradd -ms /bin/bash -u 1001 github \
-	&& printf '%s' 'github ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github
+	&& printf '%s' 'github ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github \
+	&& chmod 0440 /etc/sudoers.d/github
+
+RUN if [[ "${CODENAME}" == "noble" ]]; then \
+        usermod -md /home/username -l username ubuntu;\
+    else \
+        useradd -ms /bin/bash -u 1000 username; \
+    fi \
+	&& printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
+	&& chmod 0440 /etc/sudoers.d/username
 
 USER github
-
+VOLUME /home/github
+VOLUME /home/username
 WORKDIR /home/github
