@@ -1,4 +1,4 @@
-name: ci auto rerun failed jobs
+name: ci - auto rerun failed jobs
 
 on:
   workflow_dispatch:
@@ -32,6 +32,8 @@ jobs:
     steps:
       - name: Host - Checkout action ${{ inputs.distinct_id }}
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: userdocs/gh-cli-workflow-reruns/actions/auto-rerun-failed@main
         with:
