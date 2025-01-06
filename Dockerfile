@@ -58,7 +58,7 @@ RUN apt-get install -y \
 	libjsoncpp-dev${APT_ARCH} libncurses5-dev${APT_ARCH} librhash-dev${APT_ARCH}
 
 RUN if [[ ! "${CODENAME}" =~ focal ]];then \
-        apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
+		apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
 	fi
 
 RUN useradd -ms /bin/bash -u 1001 github \
@@ -66,10 +66,11 @@ RUN useradd -ms /bin/bash -u 1001 github \
 	&& chmod 0440 /etc/sudoers.d/github
 
 RUN if [[ "${CODENAME}" == "noble" ]]; then \
-        usermod -md /home/username -l username ubuntu;\
-    else \
-        useradd -ms /bin/bash -u 1000 username; \
-    fi \
+		usermod -md /home/username -l username ubuntu;\
+		groupmod -n username ubuntu; \
+	else \
+		useradd -ms /bin/bash -u 1000 username; \
+	fi \
 	&& printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
 	&& chmod 0440 /etc/sudoers.d/username
 
