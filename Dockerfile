@@ -22,6 +22,8 @@ ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 	CCXFLAGS="-g0 -std=17" \
 	CPPFLAGS="-I/opt/local/include" \
 	LDFLAGS="-s -L/opt/local/lib" \
+	LANG="C.UTF8" \
+	LANGUAGE="C.UTF8" \
 	DEBIAN_FRONTEND=noninteractive
 
 RUN if [[ "${ID}" == 'ubuntu' ]];then \
@@ -74,7 +76,5 @@ RUN if [[ "${CODENAME}" == "noble" ]]; then \
 	&& printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
 	&& chmod 0440 /etc/sudoers.d/username
 
-USER github
 VOLUME /home/github
 VOLUME /home/username
-WORKDIR /home/github

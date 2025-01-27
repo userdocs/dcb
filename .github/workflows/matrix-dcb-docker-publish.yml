@@ -1,138 +1,139 @@
 name: dcb docker build and release
 
 on:
-  workflow_dispatch:
-    inputs:
-      skip_rerun:
-        description: "Skip rerun?"
-        required: true
-        default: false
-        type: boolean
-      retries:
-        description: "Number of rerun retries"
-        required: true
-        default: "1"
-        type: choice
-        options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+    workflow_dispatch:
+        inputs:
+            skip_rerun:
+                description: "Skip rerun?"
+                required: true
+                default: false
+                type: boolean
+            retries:
+                description: "Number of rerun retries"
+                required: true
+                default: "1"
+                type: choice
+                options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-  schedule:
-    - cron: "0 */24 * * *"
+    schedule:
+        - cron: "0 */24 * * *"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  GH_TOKEN: "${{ github.TOKEN }}"
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
+    GH_TOKEN: "${{ github.TOKEN }}"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      packages: write
-      contents: write
-      attestations: write
-    strategy:
-      fail-fast: false
-      matrix:
-        os_id: [debian, ubuntu]
-        os_version_id: [bullseye, bookworm, focal, jammy, noble]
-        arch: [amd64, armhf, arm64]
-        include:
-          - arch: amd64
-            CHOST: "x86_64-linux-gnu"
-          - arch: armhf
-            CHOST: "arm-linux-gnueabihf"
-          - arch: arm64
-            CHOST: "aarch64-linux-gnu"
+    build:
+        runs-on: ubuntu-24.04
+        permissions:
+            id-token: write
+            packages: write
+            contents: write
+            attestations: write
+        strategy:
+            fail-fast: false
+            matrix:
+                os_id: [debian, ubuntu]
+                os_version_id: [bullseye, bookworm, focal, jammy, noble]
+                arch: [amd64, armhf, arm64]
+                include:
+                    - arch: amd64
+                      CHOST: "x86_64-linux-gnu"
+                    - arch: armhf
+                      CHOST: "arm-linux-gnueabihf"
+                    - arch: arm64
+                      CHOST: "aarch64-linux-gnu"
 
-        exclude:
-          - os_id: debian
-            os_version_id: focal
-          - os_id: debian
-            os_version_id: jammy
-          - os_id: debian
-            os_version_id: noble
-          - os_id: ubuntu
-            os_version_id: bullseye
-          - os_id: ubuntu
-            os_version_id: bookworm
+                exclude:
+                    - os_id: debian
+                      os_version_id: focal
+                    - os_id: debian
+                      os_version_id: jammy
+                    - os_id: debian
+                      os_version_id: noble
+                    - os_id: ubuntu
+                      os_version_id: bullseye
+                    - os_id: ubuntu
+                      os_version_id: bookworm
 
-    name: dcb ${{ matrix.os_id }}:${{ matrix.os_version_id }} ${{ matrix.arch }}
+        name: dcb ${{ matrix.os_id }}:${{ matrix.os_version_id }} ${{ matrix.arch }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
 
-      - name: Apt arch
-        run: if [[ ${{ matrix.arch }} != amd64 ]];then echo "apt_arch=:${{ matrix.arch }}" >> $GITHUB_ENV; fi
+            - name: Apt arch
+              run: if [[ ${{ matrix.arch }} != amd64 ]];then echo "apt_arch=:${{ matrix.arch }}" >> $GITHUB_ENV; fi
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            - name: Extract metadata (tags, labels) for Docker
+              id: meta
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Log in to the Container registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        id: push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          no-cache: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.os_id }}-${{ matrix.os_version_id }}-${{ matrix.arch }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            ID=${{ matrix.os_id }}
-            CODENAME=${{ matrix.os_version_id }}
-            ARCH=${{ matrix.arch }}
-            APT_ARCH=${{ env.apt_arch }}
-            CHOST=${{ matrix.CHOST }}
+            - name: Build and push Docker image
+              id: push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: Dockerfile
+                  push: true
+                  no-cache: true
+                  provenance: false
+                  tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.os_id }}-${{ matrix.os_version_id }}-${{ matrix.arch }}
+                  labels: ${{ steps.meta.outputs.labels }}
+                  build-args: |
+                      ID=${{ matrix.os_id }}
+                      CODENAME=${{ matrix.os_version_id }}
+                      ARCH=${{ matrix.arch }}
+                      APT_ARCH=${{ env.apt_arch }}
+                      CHOST=${{ matrix.CHOST }}
 
-      - name: Attest
-        uses: actions/attest-build-provenance@v2
-        id: attest
-        with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          subject-digest: ${{ steps.push.outputs.digest }}
-          push-to-registry: true
+            - name: Attest
+              uses: actions/attest-build-provenance@v2
+              id: attest
+              with:
+                  subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+                  subject-digest: ${{ steps.push.outputs.digest }}
+                  push-to-registry: true
 
-  ci-auto-rerun-failed-jobs:
-    if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'
-    needs: [build]
-    concurrency:
-      group: ci-auto-rerun-failed-jobs
-      cancel-in-progress: true
-    permissions:
-      actions: write
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
-      github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN
-      retries: ${{ github.event.inputs.retries || '1' }}
-      distinct_id: ${{ github.event.inputs.distinct_id }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: ci-auto-rerun-failed-jobs via ${{ env.github_repo || github.repository }}
-        run: >
-          --repo "${github_repo:-$GITHUB_REPOSITORY}"
-          -f github_repo=${GITHUB_REPOSITORY}
-          -f run_id=${GITHUB_RUN_ID}
-          -f attempts=${GITHUB_RUN_ATTEMPT}
-          -f retries=${retries}
-          -f distinct_id=${distinct_id}
+    ci-auto-rerun-failed-jobs:
+        if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'
+        needs: [build]
+        concurrency:
+            group: ci-auto-rerun-failed-jobs
+            cancel-in-progress: true
+        permissions:
+            actions: write
+        runs-on: ubuntu-latest
+        env:
+            GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
+            github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN
+            retries: ${{ github.event.inputs.retries || '1' }}
+            distinct_id: ${{ github.event.inputs.distinct_id }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+            - name: ci-auto-rerun-failed-jobs via ${{ env.github_repo || github.repository }}
+              run: >
+                  --repo "${github_repo:-$GITHUB_REPOSITORY}"
+                  -f github_repo=${GITHUB_REPOSITORY}
+                  -f run_id=${GITHUB_RUN_ID}
+                  -f attempts=${GITHUB_RUN_ATTEMPT}
+                  -f retries=${retries}
+                  -f distinct_id=${distinct_id}
