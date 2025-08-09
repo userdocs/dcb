@@ -2,6 +2,6 @@
 // https://docs.renovatebot.com/config-presets/#github
 {
   'extends': [
-    'github>userdocs/renovate'
+    'github>userdocs/renovate:/default.json5'
   ]
 }
