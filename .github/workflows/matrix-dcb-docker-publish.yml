@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os_id: [debian, ubuntu]
-        os_version_id: [bullseye, bookworm, focal, jammy, noble]
+        os_version_id: [bullseye, bookworm, trixie, focal, jammy, noble]
         arch: [amd64, armhf, arm64]
         include:
           - arch: amd64
@@ -60,6 +60,8 @@ jobs:
             os_version_id: bullseye
           - os_id: ubuntu
             os_version_id: bookworm
+          - os_id: ubuntu
+            os_codename: trixie
 
     name: dcb ${{ matrix.os_id }}:${{ matrix.os_version_id }} ${{ matrix.arch }}
 
