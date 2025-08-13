@@ -1,5 +1,5 @@
-ARG ID
-ARG CODENAME
+ARG ID=debian
+ARG CODENAME=bookworm
 
 FROM ${ID}:${CODENAME}
 
