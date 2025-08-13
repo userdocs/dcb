@@ -63,9 +63,9 @@ RUN if [[ ! "${CODENAME}" =~ focal ]];then \
 		apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
 	fi
 
-RUN useradd -ms /bin/bash -u 1001 github \
-	&& printf '%s' 'github ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github \
-	&& chmod 0440 /etc/sudoers.d/github
+RUN useradd -ms /bin/bash -u 1001 gh \
+	&& printf '%s' 'gh ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gh \
+	&& chmod 0440 /etc/sudoers.d/gh
 
 RUN if [[ "${CODENAME}" == "noble" ]]; then \
 		usermod -md /home/username -l username ubuntu;\
@@ -76,5 +76,5 @@ RUN if [[ "${CODENAME}" == "noble" ]]; then \
 	&& printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
 	&& chmod 0440 /etc/sudoers.d/username
 
-VOLUME /home/github
+VOLUME /home/gh
 VOLUME /home/username
