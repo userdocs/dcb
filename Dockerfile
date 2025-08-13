@@ -49,7 +49,7 @@ RUN if [[ "${ARCH}" == 'amd64' ]];then apt-get install -y build-essential; fi
 
 RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
 
-RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH}; fi
+RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y make libc6-dev crossbuild-essential-${ARCH}; fi
 
 RUN apt-get install -y \
 	ccache${APT_ARCH} libgeoip-dev${APT_ARCH} \
