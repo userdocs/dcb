@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os_id: [debian, ubuntu]
-        os_codename: [bullseye, bookworm, trixie, focal, jammy, noble]
+        os_codename: [bullseye, bookworm, trixie, jammy, noble]
         arch: [amd64, armhf, arm64]
         include:
           - arch: amd64

@@ -52,7 +52,7 @@ RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then dpkg --add-archite
 RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH}; fi
 
 RUN apt-get install -y \
-	ccache${APT_ARCH} libgeoip-dev${APT_ARCH} \
+	make${APT_ARCH} ccache${APT_ARCH} libgeoip-dev${APT_ARCH} \
 	libssl-dev${APT_ARCH} re2c${APT_ARCH} libstdc++-*-dev${APT_ARCH} libarchive-dev${APT_ARCH} \
 	libcurl4-openssl-dev${APT_ARCH} libuv1-dev${APT_ARCH} procps${APT_ARCH} zlib1g-dev${APT_ARCH} \
 	libexpat1-dev${APT_ARCH} openssl${APT_ARCH} libicu[0-9][^a-z]${APT_ARCH} libicu-dev${APT_ARCH} \
