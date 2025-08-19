@@ -19,11 +19,12 @@ ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 	CPP=${CHOST}-cpp \
 	CXX=${CHOST}-g++ \
 	CFLAGS="" \
-	CCXFLAGS="-g0 -std=17" \
+	CXXFLAGS="-g0 -std=c++17" \
 	CPPFLAGS="-I/opt/local/include" \
 	LDFLAGS="-s -L/opt/local/lib" \
-	LANG="C.UTF8" \
-	LANGUAGE="C.UTF8" \
+	LANG="C.UTF-8" \
+	LANGUAGE="C.UTF-8" \
+	LC_ALL="C.UTF-8" \
 	DEBIAN_FRONTEND=noninteractive
 
 RUN if [[ "${ID}" == 'ubuntu' ]];then \
@@ -49,7 +50,7 @@ RUN if [[ "${ARCH}" == 'amd64' ]];then apt-get install -y build-essential; fi
 
 RUN if [[ "${ID}" == 'ubuntu' && "${ARCH}" != 'amd64' ]];then dpkg --add-architecture ${ARCH}; fi
 
-RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH}; fi
+RUN if [[ "${ARCH}" != 'amd64' ]];then apt-get install -y crossbuild-essential-${ARCH} dpkg-cross; fi
 
 RUN apt-get install -y \
 	make${APT_ARCH} ccache${APT_ARCH} libgeoip-dev${APT_ARCH} \
@@ -59,13 +60,19 @@ RUN apt-get install -y \
 	libdouble-conversion[0-9]${APT_ARCH} libdouble-conversion-dev${APT_ARCH} \
 	libjsoncpp-dev${APT_ARCH} libncurses5-dev${APT_ARCH} librhash-dev${APT_ARCH}
 
-RUN if [[ ! "${CODENAME}" =~ focal ]];then \
+RUN if [[ ! "${CODENAME}" == "focal" ]];then \
 		apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
 	fi
 
-RUN useradd -ms /bin/bash -u 1001 gh \
-	&& printf '%s' 'gh ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gh \
-	&& chmod 0440 /etc/sudoers.d/gh
+# Reduce image size by cleaning apt cache and lists
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -f -o -g 1001 gh \
+	&& useradd -ms /bin/bash -u 1001 -g gh gh \
+	&& useradd -ms /bin/bash -u 1002 -g gh github \
+	&& printf '%s\n' 'gh ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/gh \
+	&& printf '%s\n' 'github ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github \
+	&& chmod 0440 /etc/sudoers.d/gh /etc/sudoers.d/github
 
 RUN if [[ "${CODENAME}" == "noble" ]]; then \
 		usermod -md /home/username -l username ubuntu;\
@@ -73,8 +80,10 @@ RUN if [[ "${CODENAME}" == "noble" ]]; then \
 	else \
 		useradd -ms /bin/bash -u 1000 username; \
 	fi \
-	&& printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
+	&& printf '%s\n' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username \
 	&& chmod 0440 /etc/sudoers.d/username
 
 VOLUME /home/gh
 VOLUME /home/username
+
+WORKDIR /home/gh
