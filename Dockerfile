@@ -3,6 +3,13 @@ ARG CODENAME=trixie@sha256:6d87375016340817ac2391e670971725a9981cfc24e221c477346
 
 FROM ${ID}:${CODENAME}
 
+# Re-declare ARGs after FROM to make them available in subsequent instructions
+ARG ID
+ARG CODENAME
+ARG ARCH
+ARG APT_ARCH
+ARG CHOST
+
 # Add metadata labels for easy parsing
 LABEL org.opencontainers.image.base.name="${ID}:${CODENAME}" \
       org.opencontainers.image.base.id="${ID}" \
@@ -16,12 +23,6 @@ LABEL org.opencontainers.image.base.name="${ID}:${CODENAME}" \
       org.opencontainers.image.vendor="userdocs"
 
 SHELL ["/bin/bash", "-c"]
-
-ARG ID
-ARG CODENAME
-ARG ARCH
-ARG APT_ARCH
-ARG CHOST
 
 ENV PATH=/opt/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
 	LD_LIBRARY_PATH=/opt/local/lib:/usr/lib/${CHOST}:/usr/lib:/usr/local/lib \
