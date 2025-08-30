@@ -3,6 +3,18 @@ ARG CODENAME=trixie@sha256:6d87375016340817ac2391e670971725a9981cfc24e221c477346
 
 FROM ${ID}:${CODENAME}
 
+# Add metadata labels for easy parsing
+LABEL org.opencontainers.image.base.name="${ID}:${CODENAME}" \
+      org.opencontainers.image.base.id="${ID}" \
+      org.opencontainers.image.base.codename="${CODENAME}" \
+      org.opencontainers.image.title="Debian Cross-Build Docker" \
+      org.opencontainers.image.description="Cross-compilation environment for Debian/Ubuntu" \
+      org.opencontainers.image.source="https://github.com/userdocs/debian-crossbuild-docker" \
+      org.opencontainers.image.url="https://github.com/userdocs/debian-crossbuild-docker" \
+      org.opencontainers.image.documentation="https://github.com/userdocs/debian-crossbuild-docker/blob/main/README.md" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.vendor="userdocs"
+
 SHELL ["/bin/bash", "-c"]
 
 ARG ID
