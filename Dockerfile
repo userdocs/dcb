@@ -75,10 +75,6 @@ RUN apt-get install -y \
 	libdouble-conversion[0-9]${APT_ARCH} libdouble-conversion-dev${APT_ARCH} \
 	libjsoncpp-dev${APT_ARCH} libncurses5-dev${APT_ARCH} librhash-dev${APT_ARCH}
 
-RUN if [[ ! "${CODENAME}" == "focal" ]];then \
-		apt-get install -y libmd4c-html0${APT_ARCH} libmd4c-html0-dev${APT_ARCH}; \
-	fi
-
 # Reduce image size by cleaning apt cache and lists
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -89,7 +85,7 @@ RUN groupadd -f -o -g 1001 gh \
 	&& printf '%s\n' 'github ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/github \
 	&& chmod 0440 /etc/sudoers.d/gh /etc/sudoers.d/github
 
-RUN if [[ "${CODENAME}" == "noble" ]]; then \
+RUN if [[ "${CODENAME}" =~ ^(noble|resolute)$ ]]; then \
 		usermod -md /home/username -l username ubuntu;\
 		groupmod -n username ubuntu; \
 	else \

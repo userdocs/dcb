@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         os_id: [debian, ubuntu]
-        os_codename: [bullseye, bookworm, trixie, jammy, noble]
+        os_codename: [bookworm, trixie, jammy, noble, resolute]
         arch: [amd64, armhf, arm64]
         include:
           - arch: amd64
@@ -50,13 +50,11 @@ jobs:
             CHOST: "aarch64-linux-gnu"
         exclude:
           - os_id: debian
-            os_codename: focal
-          - os_id: debian
             os_codename: jammy
           - os_id: debian
             os_codename: noble
-          - os_id: ubuntu
-            os_codename: bullseye
+          - os_id: debian
+            os_codename: resolute
           - os_id: ubuntu
             os_codename: bookworm
           - os_id: ubuntu
@@ -115,8 +113,8 @@ jobs:
   ci-auto-rerun-failed-jobs:
     if: >
       failure()
-      && (needs.scheduled_defaults.outputs.skip_rerun || 'false') == 'false'
-      && github.run_attempt <= (needs.scheduled_defaults.outputs.retries || 1)
+      && (github.event.inputs.skip_rerun || 'false') == 'false'
+      && github.run_attempt <= (github.event.inputs.retries || 1)
     needs: [build]
     concurrency:
       group: ci-auto-rerun-failed-jobs
